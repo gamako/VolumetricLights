@@ -185,7 +185,16 @@ Shader "Hidden/BilateralBlur"
 		//-----------------------------------------------------------------------------------------
 		float DownsampleDepth(v2fDownsample input, Texture2D depthTexture, SamplerState depthSampler)
 		{
-            float4 depth = depthTexture.Gather(depthSampler, input.uv);
+			float inputuvx = floor(input.uv.x);
+			float inputuvy = floor(input.uv.y);
+
+            float4 depth = {
+            	depthTexture.Sample(depthSampler, float2(inputuvx + 0, inputuvy + 0) ).x,
+            	depthTexture.Sample(depthSampler, float2(inputuvx + 1, inputuvy + 0) ).x,
+            	depthTexture.Sample(depthSampler, float2(inputuvx + 0, inputuvy + 1) ).x,
+            	depthTexture.Sample(depthSampler, float2(inputuvx + 1, inputuvy + 1) ).x
+            	};
+            // float4 depth = depthTexture.Gather(depthSampler, input.uv);
 
 #if DOWNSAMPLE_DEPTH_MODE == 0 // min  depth
             return min(min(depth.x, depth.y), min(depth.z, depth.w));
@@ -289,7 +298,8 @@ Shader "Hidden/BilateralBlur"
 			CGPROGRAM
 			#pragma vertex vert
 			#pragma fragment horizontalFrag
-            #pragma target gl4.1
+            //#pragma target gl4.1
+            #pragma target es3.0
 			
 			fixed4 horizontalFrag(v2f input) : SV_Target
 			{
@@ -305,7 +315,8 @@ Shader "Hidden/BilateralBlur"
 			CGPROGRAM
 			#pragma vertex vert
 			#pragma fragment verticalFrag
-            #pragma target gl4.1
+            //#pragma target gl4.1
+            #pragma target es3.0
 			
 			fixed4 verticalFrag(v2f input) : SV_Target
 			{
@@ -321,8 +332,9 @@ Shader "Hidden/BilateralBlur"
 			CGPROGRAM
             #pragma vertex vert
             #pragma fragment horizontalFrag
-            #pragma target gl4.1
-
+            //#pragma target gl4.1
+            #pragma target es3.0
+			
 			fixed4 horizontalFrag(v2f input) : SV_Target
 		{
             return BilateralBlur(input, int2(1, 0), _HalfResDepthBuffer, sampler_HalfResDepthBuffer, HALF_RES_BLUR_KERNEL_SIZE, _HalfResDepthBuffer_TexelSize.xy);
@@ -337,8 +349,9 @@ Shader "Hidden/BilateralBlur"
 			CGPROGRAM
             #pragma vertex vert
             #pragma fragment verticalFrag
-            #pragma target gl4.1
-
+            //#pragma target gl4.1
+            #pragma target es3.0
+			
 			fixed4 verticalFrag(v2f input) : SV_Target
 		{
             return BilateralBlur(input, int2(0, 1), _HalfResDepthBuffer, sampler_HalfResDepthBuffer, HALF_RES_BLUR_KERNEL_SIZE, _HalfResDepthBuffer_TexelSize.xy);
@@ -353,8 +366,9 @@ Shader "Hidden/BilateralBlur"
 			CGPROGRAM
 			#pragma vertex vertHalfDepth
 			#pragma fragment frag
-            #pragma target gl4.1
-
+            //#pragma target gl4.1
+            #pragma target es3.0
+			
 			v2fDownsample vertHalfDepth(appdata v)
 			{
                 return vertDownsampleDepth(v, _CameraDepthTexture_TexelSize);
@@ -376,8 +390,9 @@ Shader "Hidden/BilateralBlur"
 			CGPROGRAM
 			#pragma vertex vertUpsampleToFull
 			#pragma fragment frag		
-            #pragma target gl4.1
-
+            //#pragma target gl4.1
+            #pragma target es3.0
+			
 			v2fUpsample vertUpsampleToFull(appdata v)
 			{
                 return vertUpsample(v, _HalfResDepthBuffer_TexelSize);
@@ -396,8 +411,9 @@ Shader "Hidden/BilateralBlur"
 			CGPROGRAM
             #pragma vertex vertQuarterDepth
             #pragma fragment frag
-            #pragma target gl4.1
-
+            //#pragma target gl4.1
+            #pragma target es3.0
+			
 			v2fDownsample vertQuarterDepth(appdata v)
 			{
                 return vertDownsampleDepth(v, _HalfResDepthBuffer_TexelSize);
@@ -419,8 +435,9 @@ Shader "Hidden/BilateralBlur"
 			CGPROGRAM
             #pragma vertex vertUpsampleToFull
             #pragma fragment frag		
-            #pragma target gl4.1
-
+            //#pragma target gl4.1
+            #pragma target es3.0
+			
 			v2fUpsample vertUpsampleToFull(appdata v)
 			{
                 return vertUpsample(v, _QuarterResDepthBuffer_TexelSize);
@@ -439,8 +456,9 @@ Shader "Hidden/BilateralBlur"
 			CGPROGRAM
             #pragma vertex vert
             #pragma fragment horizontalFrag
-            #pragma target gl4.1
-
+            //#pragma target gl4.1
+            #pragma target es3.0
+			
 			fixed4 horizontalFrag(v2f input) : SV_Target
 			{
                 return BilateralBlur(input, int2(1, 0), _QuarterResDepthBuffer, sampler_QuarterResDepthBuffer, QUARTER_RES_BLUR_KERNEL_SIZE, _QuarterResDepthBuffer_TexelSize.xy);
@@ -455,8 +473,9 @@ Shader "Hidden/BilateralBlur"
 			CGPROGRAM
             #pragma vertex vert
             #pragma fragment verticalFrag
-            #pragma target gl4.1
-
+            //#pragma target gl4.1
+            #pragma target es3.0
+			
 			fixed4 verticalFrag(v2f input) : SV_Target
 			{
                 return BilateralBlur(input, int2(0, 1), _QuarterResDepthBuffer, sampler_QuarterResDepthBuffer, QUARTER_RES_BLUR_KERNEL_SIZE, _QuarterResDepthBuffer_TexelSize.xy);
